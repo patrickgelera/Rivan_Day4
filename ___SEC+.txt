@@ -3,6 +3,137 @@
 
 
 =======================================
+## OSI Model 
+*Interpret and Explain the OSI Model*
+
+PDU (Protocol Data Unit)
+
+### 7. Application Layer 
+"Underlying service that supports applications"  
+SMTP  
+Resource sharing  
+Service advertisement  
+Gramaphone  
+
+<br>
+
+### 6. Presentation Layer - File extension
+Data  
+encryption  
+-tion  
+.wav .jpg .au .exe .psd  
+
+<br>
+
+### 5. Session Layer - Session established
+Data Stream  
+stateful  
+  
+Commands: netstat -s -p tcp, telnet, ssh  
+
+~~~
+!@Cisco
+conf t
+ username admin priv 15 secret pass
+ ip domain name net.sec
+ crypto key generate rsa modulus 2048 label key exportable
+ ip ssh version 2
+ line vty 0 14
+  password pass
+  login local
+  exec-timeout 0 0
+  end
+~~~
+
+<br>
+
+~~~
+!@CoreBABA
+conf t
+ monitor session 1 source interface fa0/3,fa0/5,fa0/7
+ monitor session 1 destination int fa0/1,fa0/9
+ end
+~~~
+
+<br>
+
+Remove SPAN
+
+<br>
+
+~~~
+!@CoreBABA
+conf t
+ no monitor session 1 source interface fa0/3,fa0/5,fa0/7
+ no monitor session 1 destination int fa0/1,fa0/9
+ end
+~~~
+
+<br>
+
+### 4. Transport Layer - TCP/UDP
+Segments  
+Three way handshake  
+Sliding Window  
+  
+Commands: nmap -v 10.#$34T#.1.10    
+  
+Well-known ports 0 - 1023  
+Registered ports 1024 - 49151  
+Ephemeral/Dynamic ports 49152 - 65535  
+
+<br>
+
+### 3. Network Layer - IP addresses
+Packets  
+Routing protocols  
+Forwarding packets  
+  
+Commands: show ip int br, sh ip route  
+
+<br>
+
+### 2. Data-link Layer - MAC Addresses
+Frames  
+FCS  
+Preamble  
+  
+Commands: show vlan brief  
+
+~~~
+!@CoreBABA
+config t
+ int fa0/6
+  switchport mode access
+  switchport port-security
+  switchport port-security mac-address Sticky
+  switchport port-security maximum 1
+  switchport port-security violation shutdown
+ int fa0/8
+  switchport mode access
+  switchport port-security
+  switchport port-security mac-address Sticky
+  switchport port-security maximum 1
+  switchport port-security violation shutdown
+  end
+sh port-security address
+sh int status err-disable
+~~~
+
+<br>
+
+### 1. Physical Layer - "Things you touch"
+Speed = b   
+Data = B  
+  
+Commands: show cdp neigh  
+
+<br>
+<br>
+
+---
+&nbsp;
+
 ## Lab Setup
 
 ### 1. Deploy
@@ -173,8 +304,45 @@ ip -br link
 3. Modify Interface IP
 VMNet2:  192.168.102.6/24
 VMNet3:  11.11.11.100/27
-Bridged: 10.$#34T#.1.6/24
+Bridged: 10.#$34T#.1.6/24
 
+All
+~~~
+!@NetOps-PH
+nmcli connection add \
+type ethernet \
+con-name VMNET2 \
+ifname ens192 \
+ipv4.method manual \
+ipv4.addresses 192.168.102.6/24 \
+autoconnect yes
+
+nmcli connection add \
+type ethernet \
+con-name VMNET3 \
+ifname ens224 \
+ipv4.method manual \
+ipv4.addresses 11.11.11.100/27 \
+autoconnect yes
+
+nmcli connection add \
+type ethernet \
+con-name BRIDGED \
+ifname ens256 \
+ipv4.method manual \
+ipv4.addresses 10.#$34T#.1.6/24 \
+autoconnect yes
+
+nmcli connection up VMNET2
+nmcli connection up VMNET3
+nmcli connection up BRIDGED
+
+ip route add 10.0.0.0/8 via 10.#$34T#.1.4 dev ens256
+ip route add 200.0.0.0/24 via 10.#$34T#.1.4 dev ens256
+ip route add 0.0.0.0/0 via 11.11.11.113 dev ens224
+~~~
+
+<br>
 
 ~~~
 !@NetOps-PH
@@ -262,6 +430,43 @@ conf t
  ip ssh rsa keypair-name key
  end
 show ip ssh
+~~~
+
+<br>
+
+### Diffie-Hellman Key Exchange 
+~~~
+!@NetOps-PH
+openssl dhparam -out dhgroup.pem 1024
+~~~
+
+<br>
+
+~~~
+openssl genpkey -paramfile dhgroup.pem -out ph_priv.key
+openssl genpkey -paramfile dhgroup.pem -out jp_priv.key
+~~~
+
+<br>
+
+~~~
+openssl pkey -in ph_priv.key -pubout -out ph_pub.key
+openssl pkey -in jp_priv.key -pubout -out jp_pub.key
+~~~
+
+<br>
+
+~~~
+openssl pkeyutl -derive -inkey ph_priv.key -peerkey jp_pub.key -out ph-shared.secret
+openssl pkeyutl -derive -inkey jp_priv.key -peerkey ph_pub.key -out jp-shared.secret
+~~~
+
+<br>
+
+View Private key contents
+~~~
+!@NetOps
+openssl pkey -in rsa_priv.key -text -noout
 ~~~
 
 <br>
