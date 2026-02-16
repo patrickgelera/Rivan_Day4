@@ -146,9 +146,34 @@ conf t
   end
 
 
-2. On S1, configure an EXTENDED ACL named FWP-S1-VTY to prevent SSH
-  
+2. Enable SSH on S1, then: On S1, configure a STANDARD ACL named FWP-S1-VTY to prevent remote connections from P1v2
 
+!@S1
+conf t
+ ip domain name FINANCE.SERVER
+ username admin priv 15 secret pass
+ line vty 0 4
+  transport input all
+  login local
+ !
+ crypto key generate rsa modulus 2048
+ ip ssh version 2
+ end
+
+
+!@S1
+conf t
+ no ip access-list standard FWP-S1-VTY
+ ip access-list standard FWP-S1-VTY
+  deny host 10.2.3.12 log
+  permit any 
+  exit
+ !
+ line vty 0 4
+  access-class FWP-S1-VTY in
+  end
+  
+  
 
 1. S1 (File Server) should only be accessible to FINANCE   (SVI)
 2. Finance (P1 & P1v2) can only ping each.                 (SVI)
