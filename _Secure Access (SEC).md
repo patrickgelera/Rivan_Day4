@@ -2399,17 +2399,23 @@ conf t
   ip nat outside
  int g3
   ip nat inside
+ int tun1
+  ip nat inside
  !
+ no  ip access-list extended NAT
  ip access-list extended NAT
-  deny ip any 21.21.21.208 0.0.0.15
-  deny ip any 22.22.22.192 0.0.0.63
+  deny ip 11.11.11.0 0.0.0.31  21.21.21.208 0.0.0.15
+  deny ip 11.11.11.0 0.0.0.31  22.22.22.192 0.0.0.63
   permit ip any any
  !
  ip nat inside source list NAT int g1
  ip route 0.0.0.0 0.0.0.0 208.8.8.2
  !
  !
+ no  ip access-list extended NETOPS-PBR
  ip access-list extended NETOPS-PBR
+  deny ip 11.11.11.0 0.0.0.31  21.21.21.208 0.0.0.15
+  deny ip 11.11.11.0 0.0.0.31  22.22.22.192 0.0.0.63
   permit ip host 11.11.11.100 any
   exit
  route-map PBR-TO-JP permit 10
@@ -2433,9 +2439,12 @@ conf t
   ip nat outside
  int g3
   ip nat inside
+ int tun1
+  ip nat inside
  !
  ip access-list extended NAT
-  deny ip any 11.11.11.96 0.0.0.31
+  deny ip 21.21.21.208 0.0.0.15  11.11.11.96 0.0.0.31
+  deny ip 22.22.22.192 0.0.0.63  11.11.11.96 0.0.0.31
   permit ip any any
  !
  ip nat inside source list NAT int g1
