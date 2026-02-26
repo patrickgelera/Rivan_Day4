@@ -111,6 +111,7 @@ conf t
  ip http server
  ip http secure-server
  ip http authentication local
+ ip http timeout-policy idle 600 life 86400 requests 10000
  end
 wr
 !
@@ -151,6 +152,7 @@ conf t
  ip http server
  ip http secure-server
  ip http authentication local
+ ip http timeout-policy idle 600 life 86400 requests 10000
  end
 wr
 !
