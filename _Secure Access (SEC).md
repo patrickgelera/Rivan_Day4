@@ -162,7 +162,7 @@ wr
 !@BLDG-PH
 sudo su
 hostname BLDG-PH
-ifconfig eth0 11.11.11.100 netmask 255.255.255.224 up
+ifconfig eth0 11.11.11.111 netmask 255.255.255.224 up
 route add default gw 11.11.11.113
 ping 11.11.11.113
 ~~~
